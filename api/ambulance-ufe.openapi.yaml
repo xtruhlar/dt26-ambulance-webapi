@@ -1,0 +1,313 @@
+openapi: 3.0.0
+servers:
+  - description: Cluster Endpoint
+    url: /api
+info:
+  description: Remote Examination Support management for Web-In-Cloud system
+  version: "1.0.0"
+  title: Remote Examination Api
+  contact:
+    email: davidtruhlarac@gmail.com
+  license:
+    name: CC BY 4.0
+    url: "https://creativecommons.org/licenses/by/4.0/"
+tags:
+  - name: ambulanceRemoteConsultation
+    description: Remote Consultation and Examination API
+
+paths:
+  "/remote-consultation/{ambulanceId}/entries":
+    get:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Provides list of active remote consultation cases
+      operationId: getConsultationEntries
+      description: By using ambulanceId you get list of active remote consultation entries
+      parameters:
+        - in: path
+          name: ambulanceId
+          description: pass the id of the particular ambulance
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: value of the consultation entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsultationEntry"
+              examples:
+                response:
+                  $ref: "#/components/examples/ConsultationEntriesExample"
+        "404":
+          description: Ambulance with such ID does not exist
+    post:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Creates new consultation entry
+      operationId: createConsultationEntry
+      parameters:
+        - in: path
+          name: ambulanceId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationEntry"
+            examples:
+              request-sample:
+                $ref: "#/components/examples/ConsultationEntryExample"
+        required: true
+      responses:
+        "200":
+          description: created consultation entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultationEntry"
+        "400":
+          description: Missing mandatory properties
+        "404":
+          description: Ambulance with such ID does not exist
+        "409":
+          description: Entry with specified id already exists
+  "/remote-consultation/{ambulanceId}/entries/{entryId}":
+    get:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Provides a single consultation entry
+      operationId: getConsultationEntry
+      parameters:
+        - in: path
+          name: ambulanceId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: value of the consultation entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultationEntry"
+              examples:
+                response:
+                  $ref: "#/components/examples/ConsultationEntryExample"
+        "404":
+          description: Entry with such ID does not exist
+    put:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Updates a consultation entry
+      operationId: updateConsultationEntry
+      parameters:
+        - in: path
+          name: ambulanceId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationEntry"
+            examples:
+              request:
+                $ref: "#/components/examples/ConsultationEntryExample"
+        description: Consultation entry to update
+        required: true
+      responses:
+        "200":
+          description: value of the updated consultation entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultationEntry"
+        "404":
+          description: Entry with such ID does not exist
+    delete:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Deletes a consultation entry
+      operationId: deleteConsultationEntry
+      parameters:
+        - in: path
+          name: ambulanceId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Entry deleted
+        "404":
+          description: Entry with such ID does not exist
+
+  "/remote-consultation/{ambulanceId}/entries/{entryId}/protocol":
+    get:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Provides the communication protocol for a consultation
+      operationId: getConsultationProtocol
+      parameters:
+        - in: path
+          name: ambulanceId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: value of the communication protocol
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunicationProtocol"
+        "404":
+          description: Protocol not found
+    put:
+      tags:
+        - ambulanceRemoteConsultation
+      summary: Updates the communication protocol
+      operationId: updateConsultationProtocol
+      parameters:
+        - in: path
+          name: ambulanceId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: entryId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommunicationProtocol"
+        required: true
+      responses:
+        "200":
+          description: updated protocol
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunicationProtocol"
+        "404":
+          description: Protocol not found
+
+components:
+  schemas:
+    ConsultationEntry:
+      type: object
+      required: [id, patientId, patientName, status, createdAt]
+      properties:
+        id:
+          type: string
+          example: c001
+          description: Unique id of the consultation entry
+        patientId:
+          type: string
+          example: 460527-jan-novak
+          description: Unique identifier of the patient
+        patientName:
+          type: string
+          example: Ján Novák
+          description: Full name of the patient
+        condition:
+          type: string
+          example: Hypertenzia
+          description: Primary condition or reason for consultation
+        status:
+          type: string
+          enum: [active, pending, closed]
+          example: active
+          description: Current status of the consultation
+        createdAt:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:05:00Z"
+          description: Timestamp when the consultation was created
+      example:
+        $ref: "#/components/examples/ConsultationEntryExample"
+
+    CommunicationProtocol:
+      type: object
+      required: [id, entryId, content, status]
+      properties:
+        id:
+          type: string
+          example: p001
+          description: Unique id of the protocol
+        entryId:
+          type: string
+          example: c001
+          description: Reference to the consultation entry
+        content:
+          type: string
+          example: Pacient uvádza bolesti hlavy a zvýšený krvný tlak.
+          description: Content of the communication protocol
+        status:
+          type: string
+          enum: [open, in-progress, closed]
+          example: open
+          description: Current status of the protocol
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:35:00Z"
+          description: Timestamp of last update
+
+  examples:
+    ConsultationEntryExample:
+      summary: Ján Novák consultation
+      description: Example of an active remote consultation entry
+      value:
+        id: c001
+        patientId: 460527-jan-novak
+        patientName: Ján Novák
+        condition: Hypertenzia
+        status: active
+        createdAt: "2038-12-24T10:05:00.000Z"
+
+    ConsultationEntriesExample:
+      summary: List of active consultations
+      description: Example list containing 2 active remote consultation entries
+      value:
+        - id: c001
+          patientId: 460527-jan-novak
+          patientName: Ján Novák
+          condition: Hypertenzia
+          status: active
+          createdAt: "2038-12-24T10:05:00.000Z"
+        - id: c002
+          patientId: 780907-maria-kovacova
+          patientName: Mária Kováčová
+          condition: Diabetes typu 2
+          status: pending
+          createdAt: "2038-12-24T10:25:00.000Z"
