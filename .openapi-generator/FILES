@@ -1,0 +1,5 @@
+internal/ambulance_ufe/README.md
+internal/ambulance_ufe/api_ambulance_remote_consultation.go
+internal/ambulance_ufe/model_communication_protocol.go
+internal/ambulance_ufe/model_consultation_entry.go
+internal/ambulance_ufe/routers.go

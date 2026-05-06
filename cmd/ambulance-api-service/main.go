@@ -6,6 +6,7 @@ import (
     "strings"
     "github.com/gin-gonic/gin"
     "github.com/xtruhlar/dt26-ambulance-webapi/api"
+    "github.com/xtruhlar/dt26-ambulance-webapi/internal/ambulance_ufe"
 )
 
 func main() {
@@ -21,6 +22,10 @@ func main() {
     engine := gin.New()
     engine.Use(gin.Recovery())
     // request routings
+    handleFunctions := &ambulance_ufe.ApiHandleFunctions{
+        AmbulanceRemoteConsultationAPI: ambulance_ufe.NewAmbulanceRemoteConsultationApi(),
+    }
+    ambulance_ufe.NewRouterWithGinEngine(engine, *handleFunctions)
     engine.GET("/openapi", api.HandleOpenApi)
     engine.Run(":" + port)
 }
