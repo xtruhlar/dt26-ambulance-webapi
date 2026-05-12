@@ -111,7 +111,13 @@ func (o *implAmbulanceRemoteConsultationAPI) GetConsultationProtocol(c *gin.Cont
 			return nil, gin.H{"status": http.StatusNotFound, "message": "Entry not found"}, http.StatusNotFound
 		}
 		if ambulance.ConsultationEntries[idx].Protocol == nil {
-			return nil, gin.H{"status": http.StatusNotFound, "message": "Protocol not found"}, http.StatusNotFound
+			return nil, CommunicationProtocol{
+				Id:        "",
+				EntryId:   entryId,
+				Content:   "",
+				Status:    "open",
+				UpdatedAt: time.Now(),
+			}, http.StatusOK
 		}
 		return nil, ambulance.ConsultationEntries[idx].Protocol, http.StatusOK
 	})
